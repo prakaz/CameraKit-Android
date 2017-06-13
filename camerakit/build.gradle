@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 
 ext {
     PUBLISH_GROUP_ID = 'com.flurgle'
@@ -37,3 +38,15 @@ dependencies {
 
 apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/master/android-release-aar.gradle'
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "http://192.168.2.141:8081/repository/nextvpu/") {
+                authentication(userName: "admin", password: "admin123")
+            }
+            pom.version = "0.9.19"
+            pom.artifactId = "camerakit"
+            pom.groupId = "com.flurgle"
+        }
+    }
+}

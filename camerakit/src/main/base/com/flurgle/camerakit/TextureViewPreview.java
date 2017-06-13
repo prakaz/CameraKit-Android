@@ -23,7 +23,11 @@ class TextureViewPreview extends PreviewImpl {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
                 setSize(width, height);
-                dispatchSurfaceChanged();
+                try{
+                    dispatchSurfaceChanged();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
 
             @Override
