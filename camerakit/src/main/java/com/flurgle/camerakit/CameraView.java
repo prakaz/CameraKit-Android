@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.hardware.Camera;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -321,6 +322,10 @@ public class CameraView extends FrameLayout {
 
     public void captureImage() {
         mCameraImpl.captureImage();
+    }
+
+    public void captureImage(Camera.ShutterCallback shutterCallback) {
+        mCameraImpl.captureImage(shutterCallback);
     }
 
     public void startRecordingVideo() {

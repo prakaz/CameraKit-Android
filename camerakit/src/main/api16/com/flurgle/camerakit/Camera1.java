@@ -206,9 +206,14 @@ public class Camera1 extends CameraImpl {
 
     @Override
     void captureImage() {
+        captureImage(null);
+    }
+
+    @Override
+    void captureImage(Camera.ShutterCallback shutterCallback) {
         switch (mMethod) {
             case METHOD_STANDARD:
-                mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
+                mCamera.takePicture(shutterCallback, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
                         mCameraListener.onPictureTaken(data);

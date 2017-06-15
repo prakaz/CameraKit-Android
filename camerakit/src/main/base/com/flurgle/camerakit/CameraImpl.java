@@ -1,5 +1,7 @@
 package com.flurgle.camerakit;
 
+import android.hardware.Camera;
+
 abstract class CameraImpl {
 
     protected final CameraListener mCameraListener;
@@ -23,6 +25,7 @@ abstract class CameraImpl {
     abstract void setVideoQuality(@VideoQuality int videoQuality);
 
     abstract void captureImage();
+    abstract void captureImage(Camera.ShutterCallback shutterCallback);
     abstract void startVideo();
     abstract void endVideo();
 
