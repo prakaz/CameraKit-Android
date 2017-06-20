@@ -1,5 +1,6 @@
 package com.flurgle.camerakit;
 
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
@@ -88,6 +89,25 @@ public class Camera1 extends CameraImpl {
         setFacing(mFacing);
         openCamera();
         if (mPreview.isReady()) setupPreview();
+
+        if (mPreviewCallback != null){
+            int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat());
+            final byte[][] mPreBuffer = {new byte[size]};
+            mCamera.addCallbackBuffer(mPreBuffer[0]);
+            mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    if (mPreBuffer[0] == null) {
+                        mPreBuffer[0] = new byte[ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat())];
+                    }
+                    if (mPreBuffer[0] != null && mCamera != null){
+                        mCamera.addCallbackBuffer(mPreBuffer[0]);
+                        Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
+                    }
+                }
+            });
+        }
+
         mCamera.startPreview();
     }
 
@@ -205,6 +225,11 @@ public class Camera1 extends CameraImpl {
     }
 
     @Override
+    void setPreviewCallback(Camera.PreviewCallback callback) {
+        this.mPreviewCallback = callback;
+    }
+
+    @Override
     void captureImage() {
         captureImage(null);
     }
@@ -217,6 +242,23 @@ public class Camera1 extends CameraImpl {
                     @Override
                     public void onPictureTaken(byte[] data, Camera camera) {
                         mCameraListener.onPictureTaken(data);
+                        if (mPreviewCallback != null){
+                            int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat());
+                            final byte[][] mPreBuffer = {new byte[size]};
+                            mCamera.addCallbackBuffer(mPreBuffer[0]);
+                            mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+                                @Override
+                                public void onPreviewFrame(byte[] data, Camera camera) {
+                                    if (mPreBuffer[0] == null) {
+                                        mPreBuffer[0] = new byte[ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat())];
+                                    }
+                                    if (mPreBuffer[0] != null && mCamera != null){
+                                        mCamera.addCallbackBuffer(mPreBuffer[0]);
+                                        Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
+                                    }
+                                }
+                            });
+                        }
                         camera.startPreview();
                     }
                 });

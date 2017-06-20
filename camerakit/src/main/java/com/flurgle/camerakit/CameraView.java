@@ -423,7 +423,10 @@ public class CameraView extends FrameLayout {
             return mCameraListener != null ? mCameraListener : new CameraListener() {
             };
         }
+    }
 
+    public void setPreviewCallback(Camera.PreviewCallback callback){
+        mCameraImpl.setPreviewCallback(callback);
     }
 
 }

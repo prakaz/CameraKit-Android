@@ -126,6 +126,11 @@ class Camera2 extends CameraImpl {
     }
 
     @Override
+    void setPreviewCallback(Camera.PreviewCallback callback) {
+        this.mPreviewCallback = callback;
+    }
+
+    @Override
     void captureImage() {
 
     }
