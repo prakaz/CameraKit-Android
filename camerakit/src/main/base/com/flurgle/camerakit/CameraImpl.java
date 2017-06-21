@@ -7,6 +7,7 @@ abstract class CameraImpl {
     protected final CameraListener mCameraListener;
     protected final PreviewImpl mPreview;
     protected Camera.PreviewCallback mPreviewCallback = null;
+    protected Camera.PreviewCallback mPreviewCallback2 = null;
 
     CameraImpl(CameraListener callback, PreviewImpl preview) {
         mCameraListener = callback;
@@ -26,6 +27,7 @@ abstract class CameraImpl {
     abstract void setVideoQuality(@VideoQuality int videoQuality);
 
     abstract void setPreviewCallback(Camera.PreviewCallback callback);
+    abstract void setPreviewCallback2(Camera.PreviewCallback callback);
 
     abstract void captureImage();
     abstract void captureImage(Camera.ShutterCallback shutterCallback);
@@ -36,4 +38,5 @@ abstract class CameraImpl {
     abstract Size getPreviewResolution();
     abstract boolean isCameraOpened();
 
+    abstract int getPreviewFormat();
 }

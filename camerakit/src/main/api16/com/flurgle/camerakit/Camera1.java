@@ -91,18 +91,23 @@ public class Camera1 extends CameraImpl {
         if (mPreview.isReady()) setupPreview();
 
         if (mPreviewCallback != null){
-            int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat());
+            final int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat()) / 8;
             final byte[][] mPreBuffer = {new byte[size]};
             mCamera.addCallbackBuffer(mPreBuffer[0]);
             mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
                 @Override
-                public void onPreviewFrame(byte[] data, Camera camera) {
+                public void onPreviewFrame(byte[] data, final Camera camera) {
                     if (mPreBuffer[0] == null) {
-                        mPreBuffer[0] = new byte[ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat())];
+                        mPreBuffer[0] = new byte[size];
                     }
-                    if (mPreBuffer[0] != null && mCamera != null){
+                    if (mCamera != null){
                         mCamera.addCallbackBuffer(mPreBuffer[0]);
-                        Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
+                        new Thread(new ProcessStillTask(data, camera, calculateCaptureRotation(), new ProcessStillTask.OnStillProcessedListener() {
+                            @Override
+                            public void onStillProcessed(final YuvImage yuv) {
+                                Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
+                            }
+                        })).start();
                     }
                 }
             });
@@ -230,6 +235,11 @@ public class Camera1 extends CameraImpl {
     }
 
     @Override
+    void setPreviewCallback2(Camera.PreviewCallback callback) {
+        this.mPreviewCallback2 = callback;
+    }
+
+    @Override
     void captureImage() {
         captureImage(null);
     }
@@ -243,16 +253,16 @@ public class Camera1 extends CameraImpl {
                     public void onPictureTaken(byte[] data, Camera camera) {
                         mCameraListener.onPictureTaken(data);
                         if (mPreviewCallback != null){
-                            int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat());
+                            final int size = mPreviewSize.getWidth() * mPreviewSize.getHeight() * ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat())/8;
                             final byte[][] mPreBuffer = {new byte[size]};
                             mCamera.addCallbackBuffer(mPreBuffer[0]);
                             mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
                                 @Override
                                 public void onPreviewFrame(byte[] data, Camera camera) {
                                     if (mPreBuffer[0] == null) {
-                                        mPreBuffer[0] = new byte[ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat())];
+                                        mPreBuffer[0] = new byte[size];
                                     }
-                                    if (mPreBuffer[0] != null && mCamera != null){
+                                    if (mCamera != null){
                                         mCamera.addCallbackBuffer(mPreBuffer[0]);
                                         Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
                                     }
@@ -354,6 +364,14 @@ public class Camera1 extends CameraImpl {
     @Override
     boolean isCameraOpened() {
         return mCamera != null;
+    }
+
+    @Override
+    int getPreviewFormat() {
+        if (mCamera != null){
+            return mCamera.getParameters().getPreviewFormat();
+        }
+        return -1;
     }
 
     // Internal:

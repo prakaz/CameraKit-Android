@@ -340,6 +340,10 @@ public class CameraView extends FrameLayout {
         return mCameraImpl != null ? mCameraImpl.getPreviewResolution() : null;
     }
 
+    public int getPreviewFormat(){
+        return mCameraImpl != null ? mCameraImpl.getPreviewFormat() : -1;
+    }
+
     public Size getCaptureSize() {
         return mCameraImpl != null ? mCameraImpl.getCaptureResolution() : null;
     }
@@ -429,4 +433,7 @@ public class CameraView extends FrameLayout {
         mCameraImpl.setPreviewCallback(callback);
     }
 
+    public void setPreviewCallback2(Camera.PreviewCallback callback){
+        mCameraImpl.setPreviewCallback2(callback);
+    }
 }

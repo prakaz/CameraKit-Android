@@ -131,6 +131,11 @@ class Camera2 extends CameraImpl {
     }
 
     @Override
+    void setPreviewCallback2(Camera.PreviewCallback callback) {
+
+    }
+
+    @Override
     void captureImage() {
 
     }
@@ -205,6 +210,11 @@ class Camera2 extends CameraImpl {
     @Override
     boolean isCameraOpened() {
         return mCamera != null;
+    }
+
+    @Override
+    int getPreviewFormat() {
+        return 0;
     }
 
     // Internal
