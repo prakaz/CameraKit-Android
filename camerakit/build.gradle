@@ -41,10 +41,10 @@ apply from: 'https://raw.githubusercontent.com/blundell/release-android-library/
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "http://192.168.2.141:8081/repository/nextvpu/") {
+            repository(url: "http://192.168.1.124:8081/repository/nextvpu/") {
                 authentication(userName: "admin", password: "admin123")
             }
-            pom.version = "0.9.28"
+            pom.version = "0.9.29"
             pom.artifactId = "camerakit"
             pom.groupId = "com.flurgle"
         }

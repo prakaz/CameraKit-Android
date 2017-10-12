@@ -218,7 +218,7 @@ public class CameraView extends FrameLayout {
                     mCameraImpl.start();
                 }catch (Exception e){
                     e.printStackTrace();
-                    mCameraListener.onCameraError(e);
+                    mCameraListener.getCameraListener().onCameraError(e);
                 }
             }
         }).start();
