@@ -44,7 +44,7 @@ uploadArchives {
             repository(url: "http://192.168.1.124:8081/repository/nextvpu/") {
                 authentication(userName: "admin", password: "admin123")
             }
-            pom.version = "0.9.29"
+            pom.version = "0.9.35"
             pom.artifactId = "camerakit"
             pom.groupId = "com.flurgle"
         }

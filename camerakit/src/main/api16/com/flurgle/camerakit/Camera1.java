@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.flurgle.camerakit.CameraKit.Constants.FLASH_OFF;
 import static com.flurgle.camerakit.CameraKit.Constants.FOCUS_CONTINUOUS;
@@ -29,6 +32,9 @@ import static com.flurgle.camerakit.CameraKit.Constants.METHOD_STILL;
 
 @SuppressWarnings("deprecation")
 public class Camera1 extends CameraImpl {
+
+    private ExecutorService threadPoolExecutor = Executors.newSingleThreadExecutor();
+    private Future longRunningTaskFuture;
 
     private static final int FOCUS_AREA_SIZE_DEFAULT = 300;
     private static final int FOCUS_METERING_AREA_WEIGHT_DEFAULT = 1000;
@@ -102,12 +108,19 @@ public class Camera1 extends CameraImpl {
                     }
                     if (mCamera != null){
                         mCamera.addCallbackBuffer(mPreBuffer[0]);
-                        new Thread(new ProcessStillTask(data, camera, calculateCaptureRotation(), new ProcessStillTask.OnStillProcessedListener() {
+
+                        if (longRunningTaskFuture != null){
+                            longRunningTaskFuture.cancel(true);
+                            longRunningTaskFuture = null;
+                        }
+                        longRunningTaskFuture = threadPoolExecutor.submit(new ProcessStillTask(data, camera, calculateCaptureRotation(), new ProcessStillTask.OnStillProcessedListener() {
                             @Override
                             public void onStillProcessed(final YuvImage yuv) {
                                 Camera1.this.mPreviewCallback.onPreviewFrame(mPreBuffer[0], camera);
                             }
-                        })).start();
+                        }));
+
+//                        new Thread().start();
                     }
                 }
             });
@@ -118,6 +131,10 @@ public class Camera1 extends CameraImpl {
 
     @Override
     void stop() {
+        if (longRunningTaskFuture != null){
+            longRunningTaskFuture.cancel(true);
+            longRunningTaskFuture = null;
+        }
         if (mCamera != null) mCamera.stopPreview();
         mHandler.removeCallbacksAndMessages(null);
         releaseCamera();
@@ -278,12 +295,14 @@ public class Camera1 extends CameraImpl {
                 mCamera.setOneShotPreviewCallback(new Camera.PreviewCallback() {
                     @Override
                     public void onPreviewFrame(byte[] data, Camera camera) {
-                        new Thread(new ProcessStillTask(data, camera, calculateCaptureRotation(), new ProcessStillTask.OnStillProcessedListener() {
-                            @Override
-                            public void onStillProcessed(final YuvImage yuv) {
-                                mCameraListener.onPictureTaken(yuv);
-                            }
-                        })).start();
+                        if (camera != null){
+                            new Thread(new ProcessStillTask(data, camera, calculateCaptureRotation(), new ProcessStillTask.OnStillProcessedListener() {
+                                @Override
+                                public void onStillProcessed(final YuvImage yuv) {
+                                    mCameraListener.onPictureTaken(yuv);
+                                }
+                            })).start();
+                        }
                     }
                 });
                 break;

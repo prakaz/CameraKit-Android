@@ -19,6 +19,9 @@ class ProcessStillTask implements Runnable {
 
     @Override
     public void run() {
+        if (camera == null){
+            return;
+        }
         Camera.Parameters parameters = camera.getParameters();
         int width = parameters.getPreviewSize().width;
         int height = parameters.getPreviewSize().height;
